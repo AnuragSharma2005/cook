@@ -3,7 +3,7 @@ import { Recipe, ContactMessage, CollaborationRequest, Creator } from '../types'
 const RECIPES_KEY = 'kaju_recipes_v2';
 const CONTACTS_KEY = 'kaju_contacts';
 const COLLABS_KEY = 'kaju_collabs';
-const CREATORS_KEY = 'kaju_creators_v2';
+const CREATORS_KEY = 'kaju_creators_v3';
 
 export const INITIAL_CREATORS: Creator[] = [
   {

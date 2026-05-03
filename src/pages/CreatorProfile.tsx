@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Heart, Star, ArrowLeft, Grid, TrendingUp, Youtube, Instagram, Facebook, Twitter } from 'lucide-react';
+import { Heart, Star, ArrowLeft, Grid, TrendingUp } from 'lucide-react';
+import { FaYoutube, FaInstagram, FaFacebook, FaXTwitter, FaThreads } from 'react-icons/fa6';
 import { storage } from '../lib/storage';
 import { Creator, Recipe } from '../types';
 
@@ -87,28 +88,28 @@ const CreatorProfile = () => {
               {/* Social Media Links */}
               <div className="flex items-center justify-center md:justify-start gap-4 mt-6">
                 {creator.youtubeUrl && (
-                  <a href={creator.youtubeUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors shadow-sm">
-                    <Youtube size={20} />
+                  <a href={creator.youtubeUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-sm bg-[#FF0000] text-white">
+                    <FaYoutube size={18} />
                   </a>
                 )}
                 {creator.instagramUrl && (
-                  <a href={creator.instagramUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-pink-50 text-pink-500 flex items-center justify-center hover:bg-pink-500 hover:text-white transition-colors shadow-sm">
-                    <Instagram size={20} />
+                  <a href={creator.instagramUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-sm bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white">
+                    <FaInstagram size={18} />
                   </a>
                 )}
                 {creator.facebookUrl && (
-                  <a href={creator.facebookUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-colors shadow-sm">
-                    <Facebook size={20} />
+                  <a href={creator.facebookUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-sm bg-[#1877F2] text-white">
+                    <FaFacebook size={18} />
                   </a>
                 )}
                 {creator.twitterUrl && (
-                  <a href={creator.twitterUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-sky-50 text-sky-500 flex items-center justify-center hover:bg-sky-500 hover:text-white transition-colors shadow-sm">
-                    <Twitter size={20} />
+                  <a href={creator.twitterUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-sm bg-black text-white">
+                    <FaXTwitter size={18} />
                   </a>
                 )}
                 {creator.threadsUrl && (
-                  <a href={creator.threadsUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-gray-100 text-gray-900 flex items-center justify-center hover:bg-gray-900 hover:text-white transition-colors shadow-sm">
-                     <span className="font-bold text-lg leading-none -mt-0.5">@</span>
+                  <a href={creator.threadsUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-sm bg-black text-white">
+                     <FaThreads size={18} />
                   </a>
                 )}
               </div>

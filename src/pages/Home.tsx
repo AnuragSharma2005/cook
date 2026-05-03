@@ -113,12 +113,12 @@ const Home = () => {
       {/* Creators Section */}
       <section className="py-16 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-center gap-4 mb-12">
-            <div className="h-px bg-gradient-to-r from-transparent to-[#8A5A44] w-16 md:w-32 opacity-50"></div>
-            <h2 className="text-3xl md:text-4xl font-bold font-serif text-[#4A3B32]">
+          <div className="flex items-center justify-center gap-4 mb-8 md:mb-12">
+            <div className="hidden md:block h-px bg-gradient-to-r from-transparent to-[#8A5A44] w-32 opacity-50"></div>
+            <h2 className="text-[1.3rem] sm:text-2xl md:text-4xl font-bold font-serif text-[#4A3B32] text-center whitespace-nowrap tracking-tight md:tracking-normal">
               The Creators Behind the Recipes
             </h2>
-            <div className="h-px bg-gradient-to-l from-transparent to-[#8A5A44] w-16 md:w-32 opacity-50"></div>
+            <div className="hidden md:block h-px bg-gradient-to-l from-transparent to-[#8A5A44] w-32 opacity-50"></div>
           </div>
 
           <div className="flex gap-4 md:gap-10 overflow-x-auto no-scrollbar pb-8 pt-4 snap-x snap-mandatory justify-start md:justify-center px-2 md:px-4">
@@ -170,7 +170,7 @@ const Home = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 md:gap-x-8 gap-y-8 md:gap-y-12">
               {filteredRecipes.map((recipe) => (
                 <Link key={recipe.id} to={`/cook/${recipe.slug}`} className="block group">
-                  <div className="aspect-[4/5] rounded-[2rem] overflow-hidden relative mb-3 shadow-lg shadow-black/5 md:shadow-xl md:shadow-gray-200/50">
+                  <div className="aspect-[4/5] rounded-xl overflow-hidden relative mb-3 shadow-lg shadow-black/5 md:shadow-xl md:shadow-gray-200/50">
                     <img
                       src={recipe.imageUrl}
                       alt={recipe.title}
@@ -209,8 +209,8 @@ const Home = () => {
             <h2 className="text-3xl font-bold font-serif mb-12 text-center text-gray-900">Featured Recommendations</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {featuredRecipes.map((recipe) => (
-                <Link key={recipe.id} to={`/cook/${recipe.slug}`} className="bg-white rounded-[3rem] p-6 flex flex-col sm:flex-row gap-8 items-center hover:shadow-xl transition-all group border border-gray-100">
-                  <img src={recipe.imageUrl} className="w-40 h-40 rounded-[2rem] object-cover" />
+                <Link key={recipe.id} to={`/cook/${recipe.slug}`} className="bg-white rounded-[1rem] p-6 flex flex-col sm:flex-row gap-8 items-center hover:shadow-xl transition-all group border border-gray-100">
+                  <img src={recipe.imageUrl} className="w-40 h-40 rounded-lg object-cover" />
                   <div className="flex-1">
                     <span className="text-primary text-[10px] font-black uppercase tracking-[0.2em]">{recipe.category}</span>
                     <h3 className="text-2xl font-bold mb-4 group-hover:text-primary transition-colors text-gray-900">{recipe.title}</h3>
