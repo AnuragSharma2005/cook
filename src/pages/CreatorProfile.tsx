@@ -54,25 +54,34 @@ const CreatorProfile = () => {
             <ArrowLeft size={20} /> Back to Home
           </Link>
 
-          <div className="grid grid-cols-[auto_1fr] items-start gap-6 text-left">
+          {/* ✅ Responsive layout fix */}
+          <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] items-center md:items-start gap-6 text-center md:text-left">
+            
+            {/* Avatar */}
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="w-32 h-32 md:w-48 md:h-48 rounded-[2rem] overflow-hidden border-4 border-white shadow-xl bg-white"
+              className="w-32 h-32 md:w-48 md:h-48 mx-auto md:mx-0 rounded-[2rem] overflow-hidden border-4 border-white shadow-xl bg-white"
             >
               <img src={creator.avatarUrl} alt={creator.name} className="w-full h-full object-cover" />
             </motion.div>
 
+            {/* Name + Bio */}
             <motion.div
               initial={{ x: 20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.1 }}
               className="flex-1"
             >
-              <h1 className="text-3xl md:text-4xl font-black font-serif text-gray-900 mb-4 whitespace-nowrap overflow-hidden text-ellipsis">{creator.name}</h1>
-              <p className="text-lg text-gray-600 max-w-xl">{creator.bio}</p>
+              <h1 className="text-2xl md:text-4xl font-black font-serif text-gray-900 mb-2 md:mb-4 break-words">
+                {creator.name}
+              </h1>
 
-              <div className="flex flex-wrap items-center justify-start gap-6 mt-6">
+              <p className="text-base md:text-lg text-gray-600 max-w-xl mx-auto md:mx-0">
+                {creator.bio}
+              </p>
+
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-6 mt-6">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-[#E93C70]">{recipes.length}</div>
                   <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Recipes</div>
@@ -132,7 +141,7 @@ const CreatorProfile = () => {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-              {topRecipes.map((recipe, idx) => (
+              {topRecipes.map((recipe) => (
                 <Link key={recipe.id} to={`/cook/${recipe.slug}`} className="block group">
                   <div className="aspect-square rounded-[1.5rem] md:rounded-[2rem] overflow-hidden relative mb-3 shadow-md md:shadow-xl shadow-gray-200/50">
                     <img

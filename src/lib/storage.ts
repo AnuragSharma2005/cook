@@ -10,9 +10,9 @@ const LEGACY_LIKED_RECIPES_KEY = 'kaju_likes_tracking';
 export const INITIAL_CREATORS: Creator[] = [
   {
     id: 'c1',
-    name: "cookwithkitchen",
+    name: "cookwithkaju",
     avatarUrl: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&h=400&fit=crop',
-    bio: 'Sharing my passion for everyday cooking with a modern twist.',
+    bio: '🥘 Dil se banao, maze se khao!.',
     youtubeUrl: 'https://youtube.com',
     instagramUrl: 'https://instagram.com',
     facebookUrl: 'https://facebook.com',

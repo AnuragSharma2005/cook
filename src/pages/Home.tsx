@@ -180,7 +180,7 @@ const Home = () => {
                     </div>
                   </div>
                   <h3 className="text-xs md:text-xl font-bold text-gray-800 mb-0.5 md:mb-2 line-clamp-1 md:line-clamp-2 md:group-hover:text-primary transition-colors">{recipe.title}</h3>
-                  <p className="text-[10px] md:text-sm text-gray-400 font-bold tracking-tight">by cookwithkitchen</p>
+                  <p className="text-[10px] md:text-sm text-gray-400 font-bold tracking-tight">by cookwithkaju</p>
 
                   <div className="hidden md:flex items-center gap-1.5 mt-3 text-xs font-bold text-muted">
                     <Star size={14} className="text-yellow-400 fill-yellow-400" />
@@ -208,7 +208,7 @@ const Home = () => {
                     <h3 className="text-2xl font-bold mb-4 group-hover:text-primary transition-colors text-gray-900">{recipe.title}</h3>
                     <div className="flex items-center gap-4 text-sm font-bold">
                       <span className="flex items-center gap-1"><Heart size={14} /> {recipe.likes}</span>
-                      <span className="text-muted">By cookwithkitchen</span>
+                      <span className="text-muted">By cookwithkaju</span>
                     </div>
                   </div>
                 </Link>

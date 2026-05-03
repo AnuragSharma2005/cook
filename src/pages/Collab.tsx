@@ -31,7 +31,7 @@ const Collab = () => {
                     className="max-w-4xl mx-auto relative z-10"
                 >
                     <span className="text-primary font-bold uppercase tracking-[0.3em] text-xs mb-8 block">Brand Partnerships</span>
-                    <h1 className="text-5xl md:text-7xl font-extrabold font-serif mb-8 leading-tight">Elevate Your Brand <br/> with <span className="text-primary italic">cookwithkitchen</span></h1>
+                    <h1 className="text-5xl md:text-7xl font-extrabold font-serif mb-8 leading-tight">Elevate Your Brand <br/> with <span className="text-primary italic">cookwithkaju</span></h1>
                     <p className="text-gray-400 text-lg max-w-2xl mx-auto mb-10">
                         Interested in showcasing your food product, appliance, or service? Let's create high-quality organic content together.
                     </p>
