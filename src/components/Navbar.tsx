@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Menu, X, Search, UtensilsCrossed, Youtube, Instagram, Facebook } from 'lucide-react';
+import { Menu, X, Search, UtensilsCrossed, Youtube, Instagram, Facebook, Heart } from 'lucide-react';
 
-const Navbar = () => {
+type NavbarProps = {
+  onOpenSearch?: () => void;
+};
+
+const Navbar = ({ onOpenSearch }: NavbarProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
@@ -18,6 +22,7 @@ const Navbar = () => {
 
   const navLinks = [
     { name: 'Home', path: '/' },
+    { name: 'Creators', path: '/creators' },
     { name: 'Contact', path: '/contact' },
     { name: 'Collaboration', path: '/collab' },
   ];
@@ -51,6 +56,23 @@ const Navbar = () => {
           <div className="h-6 w-px bg-white/20" />
           
           <div className="flex items-center gap-4">
+            <button
+              onClick={onOpenSearch}
+              className="text-white/70 hover:text-white transition-colors flex items-center gap-2 font-semibold"
+            >
+              <Search size={18} />
+              <span>Search</span>
+            </button>
+            <Link
+              to="/liked"
+              className={`text-white/70 hover:text-white transition-colors flex items-center gap-2 font-semibold ${location.pathname === '/liked' ? 'text-white' : ''}`}
+            >
+              <Heart size={18} />
+              <span>Liked</span>
+            </Link>
+            <Link to="/login" className="text-white/70 hover:text-white transition-colors font-semibold">
+              Login
+            </Link>
             <a href="https://youtube.com" target="_blank" rel="noreferrer" className="text-white/70 hover:text-white transition-colors"><Youtube size={20} /></a>
             <a href="https://instagram.com" target="_blank" rel="noreferrer" className="text-white/70 hover:text-white transition-colors"><Instagram size={20} /></a>
             <Link to="/admin" className="bg-white text-[#D32F52] px-5 py-2 rounded-full font-bold text-sm hover:scale-105 transition-transform shadow-lg shadow-black/10">
@@ -78,6 +100,15 @@ const Navbar = () => {
               {navLinks.map((link) => (
                 <Link key={link.path} to={link.path} className="text-lg font-bold">{link.name}</Link>
               ))}
+              <Link to="/login" className="text-lg font-bold">
+                Login
+              </Link>
+              <Link to="/liked" className="text-lg font-bold flex items-center gap-2">
+                <Heart size={18} /> Liked
+              </Link>
+              <button onClick={onOpenSearch} className="text-lg font-bold flex items-center gap-2 text-left">
+                <Search size={18} /> Search
+              </button>
               <div className="h-px bg-white/20 my-2" />
               <div className="flex items-center gap-6 mb-4 text-white">
                 <Youtube />

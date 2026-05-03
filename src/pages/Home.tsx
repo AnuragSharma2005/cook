@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Search, Heart, ArrowRight, Play, Utensils, Star, Flame } from 'lucide-react';
+import { Heart, ArrowRight, Play, Utensils, Star, Flame } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { storage } from '../lib/storage';
 import { Recipe, Creator } from '../types';
 
 const Home = () => {
-  const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [creators, setCreators] = useState<Creator[]>([]);
@@ -26,9 +25,7 @@ const Home = () => {
     };
     loadData();
 
-    // Local storage for anonymous likes
-    const localLikes = localStorage.getItem('kaju_likes_tracking');
-    if (localLikes) setLikedIds(JSON.parse(localLikes));
+    setLikedIds(storage.getLikedRecipeIds());
   }, []);
 
   const handleLike = (id: string, e: React.MouseEvent) => {
@@ -37,19 +34,14 @@ const Home = () => {
     if (likedIds.includes(id)) return;
 
     storage.likeRecipe(id);
-    const newLikedIds = [...likedIds, id];
+    const newLikedIds = storage.addLikedRecipe(id);
     setLikedIds(newLikedIds);
-    localStorage.setItem('kaju_likes_tracking', JSON.stringify(newLikedIds));
 
     // Update local state to show +1 immediately
     setRecipes(recipes.map(r => r.id === id ? { ...r, likes: r.likes + 1 } : r));
   };
 
-  const filteredRecipes = recipes.filter(r => {
-    const matchesSearch = r.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = activeCategory === 'All' || r.category === activeCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredRecipes = recipes.filter((recipe) => activeCategory === 'All' || recipe.category === activeCategory);
 
   const featuredRecipes = recipes.filter(r => r.featured).slice(0, 4);
   const trendingRecipes = [...recipes].sort((a, b) => b.likes - a.likes).slice(0, 4);
@@ -60,28 +52,28 @@ const Home = () => {
       <section className="relative pt-6 pb-20 px-6 overflow-hidden">
         {/* Curved Background */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] md:w-[120%] h-full bg-[#FFE4E8] rounded-b-[50%] z-0"></div>
-        
+
         <div className="max-w-4xl mx-auto flex flex-col items-center justify-center relative z-10 text-center">
           <motion.div
-             initial={{ scale: 0.9, opacity: 0 }}
-             animate={{ scale: 1, opacity: 1 }}
-             className="w-36 h-36 md:w-48 md:h-48 rounded-full overflow-hidden border-[6px] border-white shadow-xl bg-white mb-4"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="w-36 h-36 md:w-48 md:h-48 rounded-full overflow-hidden border-[6px] border-white shadow-xl bg-white mb-4"
           >
-             <img 
-                src="https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&h=800&fit=crop" 
-                alt="Cook" 
-                className="w-full h-full object-cover object-top"
-              />
+            <img
+              src="https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&h=800&fit=crop"
+              alt="Cook"
+              className="w-full h-full object-cover object-top"
+            />
           </motion.div>
 
           <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-4xl md:text-[3.5rem] font-black font-serif leading-[1.1] text-gray-900 uppercase tracking-tight mb-2"
-            >
-              Your free digital<br />
-              <span className="text-[#E93C70]">recipe box</span>
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-4xl md:text-[3.5rem] font-black font-serif leading-[1.1] text-gray-900 uppercase tracking-tight mb-2"
+          >
+            Your free digital<br />
+            <span className="text-[#E93C70]">recipe box</span>
           </motion.h1>
         </div>
       </section>
@@ -90,17 +82,17 @@ const Home = () => {
       <section className="relative z-20 px-6 -mt-12 pb-12">
         <div className="max-w-2xl mx-auto">
           <motion.div
-             initial={{ opacity: 0, y: 20 }}
-             animate={{ opacity: 1, y: 0 }}
-             transition={{ delay: 0.2 }}
-             className="bg-white rounded-[2rem] p-6 md:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-2 border-[#E93C70] text-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white rounded-4xl p-6 md:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-2 border-[#E93C70] text-center"
           >
-          <p className="text-gray-600 mb-6 text-lg font-medium leading-relaxed">
-            Your recipes, your style — <br className="block sm:hidden" />
-            share every step.
-          </p>
+            <p className="text-gray-600 mb-6 text-lg font-medium leading-relaxed">
+              Your recipes, your style — <br className="block sm:hidden" />
+              share every step.
+            </p>
             <button className="bg-[#E93C70] text-white px-10 py-3 rounded-xl font-bold inline-flex items-center gap-2 hover:scale-105 transition-transform shadow-lg shadow-[#E93C70]/30 text-lg">
-                Get Started
+              Get Started
             </button>
           </motion.div>
         </div>
@@ -114,28 +106,28 @@ const Home = () => {
       <section className="py-16 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-center gap-4 mb-8 md:mb-12">
-            <div className="hidden md:block h-px bg-gradient-to-r from-transparent to-[#8A5A44] w-32 opacity-50"></div>
+            <div className="hidden md:block h-px bg-linear-to-r from-transparent to-[#8A5A44] w-32 opacity-50"></div>
             <h2 className="text-[1.3rem] sm:text-2xl md:text-4xl font-bold font-serif text-[#4A3B32] text-center whitespace-nowrap tracking-tight md:tracking-normal">
               The Creators Behind the Recipes
             </h2>
-            <div className="hidden md:block h-px bg-gradient-to-l from-transparent to-[#8A5A44] w-32 opacity-50"></div>
+            <div className="hidden md:block h-px bg-linear-to-l from-transparent to-[#8A5A44] w-32 opacity-50"></div>
           </div>
 
           <div className="flex gap-4 md:gap-10 overflow-x-auto no-scrollbar pb-8 pt-4 snap-x snap-mandatory justify-start md:justify-center px-2 md:px-4">
             {creators.map((creator) => (
-              <Link 
-                key={creator.id} 
+              <Link
+                key={creator.id}
                 to={`/creator/${creator.id}`}
-                className="flex flex-col items-center gap-3 flex-shrink-0 snap-center group w-[100px] md:w-32"
+                className="flex flex-col items-center gap-3 shrink-0 snap-center group w-25 md:w-32"
               >
-                <div className="w-[88px] h-[88px] md:w-28 md:h-28 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-md group-hover:shadow-xl group-hover:-translate-y-2 transition-all duration-300 bg-gray-50 border border-gray-100 p-1">
-                   <div className="w-full h-full rounded-[0.9rem] md:rounded-[1.5rem] overflow-hidden">
-                     <img 
-                       src={creator.avatarUrl} 
-                       alt={creator.name} 
-                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                     />
-                   </div>
+                <div className="w-22 h-22 md:w-28 md:h-28 rounded-2xl md:rounded-4xl overflow-hidden shadow-md group-hover:shadow-xl group-hover:-translate-y-2 transition-all duration-300 bg-gray-50 border border-gray-100 p-1">
+                  <div className="w-full h-full rounded-[0.9rem] md:rounded-3xl overflow-hidden">
+                    <img
+                      src={creator.avatarUrl}
+                      alt={creator.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  </div>
                 </div>
                 <span className="text-sm font-bold text-gray-800 text-center line-clamp-2 leading-tight px-1">
                   {creator.name}
@@ -170,13 +162,13 @@ const Home = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 md:gap-x-8 gap-y-8 md:gap-y-12">
               {filteredRecipes.map((recipe) => (
                 <Link key={recipe.id} to={`/cook/${recipe.slug}`} className="block group">
-                  <div className="aspect-[4/5] rounded-xl overflow-hidden relative mb-3 shadow-lg shadow-black/5 md:shadow-xl md:shadow-gray-200/50">
+                  <div className="aspect-4/5 rounded-xl overflow-hidden relative mb-3 shadow-lg shadow-black/5 md:shadow-xl md:shadow-gray-200/50">
                     <img
                       src={recipe.imageUrl}
                       alt={recipe.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent" />
                     <button
                       onClick={(e) => handleLike(recipe.id, e)}
                       className={`absolute bottom-3 right-3 md:top-4 md:right-4 md:bottom-auto p-2 md:p-3 rounded-xl md:rounded-2xl transition-all ${likedIds.includes(recipe.id) ? 'bg-[#E93C70] text-white' : 'bg-white/90 text-gray-400 hover:bg-primary hover:text-white shadow-sm'}`}
@@ -209,7 +201,7 @@ const Home = () => {
             <h2 className="text-3xl font-bold font-serif mb-12 text-center text-gray-900">Featured Recommendations</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {featuredRecipes.map((recipe) => (
-                <Link key={recipe.id} to={`/cook/${recipe.slug}`} className="bg-white rounded-[1rem] p-6 flex flex-col sm:flex-row gap-8 items-center hover:shadow-xl transition-all group border border-gray-100">
+                <Link key={recipe.id} to={`/cook/${recipe.slug}`} className="bg-white rounded-2xl p-6 flex flex-col sm:flex-row gap-8 items-center hover:shadow-xl transition-all group border border-gray-100">
                   <img src={recipe.imageUrl} className="w-40 h-40 rounded-lg object-cover" />
                   <div className="flex-1">
                     <span className="text-primary text-[10px] font-black uppercase tracking-[0.2em]">{recipe.category}</span>
@@ -226,25 +218,6 @@ const Home = () => {
         </section>
       )}
 
-      {/* Bottom Navigation (Mobile Only) */}
-      <div className="fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-xl border-t border-gray-100 px-8 py-4 flex items-center justify-between z-50 md:hidden">
-        <button className="text-[#E93C70] flex flex-col items-center gap-1">
-          <Utensils size={20} />
-          <span className="text-[10px] font-bold">Recipes</span>
-        </button>
-        <button className="text-gray-400 flex flex-col items-center gap-1">
-          <Star size={20} />
-          <span className="text-[10px] font-bold">Creators</span>
-        </button>
-        <button className="text-gray-400 flex flex-col items-center gap-1">
-          <Search size={20} />
-          <span className="text-[10px] font-bold">Groceries</span>
-        </button>
-        <button className="text-gray-400 flex flex-col items-center gap-1" onClick={() => window.location.href = '/admin'}>
-          <div className="w-5 h-5 rounded-full bg-gray-200" />
-          <span className="text-[10px] font-bold">Profile</span>
-        </button>
-      </div>
     </div>
   );
 };

@@ -4,6 +4,8 @@ const RECIPES_KEY = 'kaju_recipes_v2';
 const CONTACTS_KEY = 'kaju_contacts';
 const COLLABS_KEY = 'kaju_collabs';
 const CREATORS_KEY = 'kaju_creators_v3';
+const LIKED_RECIPES_KEY = 'kaju_liked_recipes_v1';
+const LEGACY_LIKED_RECIPES_KEY = 'kaju_likes_tracking';
 
 export const INITIAL_CREATORS: Creator[] = [
   {
@@ -119,6 +121,62 @@ const INITIAL_RECIPES: Recipe[] = [
 ];
 
 export const storage = {
+  // Likes
+  getLikedRecipeIds: (): string[] => {
+    const recipes = storage.getRecipes();
+    const recipeIds = new Set(recipes.map((recipe) => recipe.id));
+    const slugToId = new Map(recipes.map((recipe) => [recipe.slug, recipe.id]));
+
+    const parseIds = (value: string | null) => {
+      if (!value) return [] as string[];
+
+      try {
+        const parsed = JSON.parse(value);
+        if (!Array.isArray(parsed)) return [] as string[];
+
+        return parsed
+          .map((item) => slugToId.get(item) ?? item)
+          .filter((item) => typeof item === 'string' && recipeIds.has(item));
+      } catch {
+        return [] as string[];
+      }
+    };
+
+    const mergedIds = Array.from(
+      new Set([
+        ...parseIds(localStorage.getItem(LIKED_RECIPES_KEY)),
+        ...parseIds(localStorage.getItem(LEGACY_LIKED_RECIPES_KEY)),
+      ]),
+    );
+
+    if (mergedIds.length > 0) {
+      localStorage.setItem(LIKED_RECIPES_KEY, JSON.stringify(mergedIds));
+    }
+
+    return mergedIds;
+  },
+
+  saveLikedRecipeIds: (ids: string[]) => {
+    localStorage.setItem(LIKED_RECIPES_KEY, JSON.stringify(Array.from(new Set(ids))));
+  },
+
+  addLikedRecipe: (id: string) => {
+    const likedIds = storage.getLikedRecipeIds();
+    if (likedIds.includes(id)) return likedIds;
+
+    const nextIds = [...likedIds, id];
+    storage.saveLikedRecipeIds(nextIds);
+    return nextIds;
+  },
+
+  removeLikedRecipe: (id: string) => {
+    const nextIds = storage.getLikedRecipeIds().filter((recipeId) => recipeId !== id);
+    storage.saveLikedRecipeIds(nextIds);
+    return nextIds;
+  },
+
+  isRecipeLiked: (id: string) => storage.getLikedRecipeIds().includes(id),
+
   // Creators
   getCreators: (): Creator[] => {
     const data = localStorage.getItem(CREATORS_KEY);

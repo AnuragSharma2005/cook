@@ -1,15 +1,21 @@
-import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
+import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import GlobalMobileDock from './components/GlobalMobileDock';
 
 // Lazy load pages for better performance
 const Home = lazy(() => import('./pages/Home'));
 const RecipeDetail = lazy(() => import('./pages/RecipeDetail'));
-const Admin = lazy(() => import('./pages/Admin'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const Login = lazy(() => import('./pages/Login'));
+const CollaboratorStudio = lazy(() => import('./pages/CollaboratorStudio'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Collab = lazy(() => import('./pages/Collab'));
+const Creators = lazy(() => import('./pages/Creators'));
+const LikedItems = lazy(() => import('./pages/LikedItems'));
 const CreatorProfile = lazy(() => import('./pages/CreatorProfile'));
 
 const LoadingFallback = () => (
@@ -25,16 +31,36 @@ const LoadingFallback = () => (
 export default function App() {
   return (
     <Router>
-      <div className="flex flex-col min-h-screen">
-        <Navbar />
-        <main className="flex-grow pt-20">
+      <AuthProvider>
+        <AppShell />
+      </AuthProvider>
+    </Router>
+  );
+}
+
+function AppShell() {
+  const location = useLocation();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  useEffect(() => {
+    setIsSearchOpen(false);
+  }, [location.pathname]);
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Navbar onOpenSearch={() => setIsSearchOpen(true)} />
+      <main className="grow pt-20 pb-24 md:pb-0">
           <Suspense fallback={<LoadingFallback />}>
             <AnimatePresence mode="wait">
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/cook/:slug" element={<RecipeDetail />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/studio" element={<CollaboratorStudio />} />
+                <Route path="/creators" element={<Creators />} />
+                <Route path="/liked" element={<LikedItems />} />
                 <Route path="/creator/:id" element={<CreatorProfile />} />
-                <Route path="/admin" element={<Admin />} />
+                <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/collab" element={<Collab />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
@@ -42,8 +68,12 @@ export default function App() {
             </AnimatePresence>
           </Suspense>
         </main>
-        <Footer />
-      </div>
-    </Router>
+      <GlobalMobileDock
+        isSearchOpen={isSearchOpen}
+        onOpenSearch={() => setIsSearchOpen(true)}
+        onCloseSearch={() => setIsSearchOpen(false)}
+      />
+      <Footer />
+    </div>
   );
 }

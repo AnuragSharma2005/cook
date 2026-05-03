@@ -17,7 +17,7 @@ const CreatorProfile = () => {
       setLoading(true);
       const allCreators = storage.getCreators();
       const foundCreator = allCreators.find(c => c.id === id);
-      
+
       if (foundCreator) {
         setCreator(foundCreator);
         const allRecipes = storage.getRecipes();
@@ -53,16 +53,16 @@ const CreatorProfile = () => {
           <Link to="/" className="inline-flex items-center gap-2 text-gray-500 hover:text-primary mb-8 transition-colors">
             <ArrowLeft size={20} /> Back to Home
           </Link>
-          
+
           <div className="flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               className="w-32 h-32 md:w-48 md:h-48 rounded-[2rem] overflow-hidden border-4 border-white shadow-xl bg-white"
             >
               <img src={creator.avatarUrl} alt={creator.name} className="w-full h-full object-cover" />
             </motion.div>
-            
+
             <motion.div
               initial={{ x: 20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
@@ -70,7 +70,7 @@ const CreatorProfile = () => {
             >
               <h1 className="text-4xl md:text-5xl font-black font-serif text-gray-900 mb-4">{creator.name}</h1>
               <p className="text-lg text-gray-600 max-w-xl">{creator.bio}</p>
-              
+
               <div className="flex items-center justify-center md:justify-start gap-6 mt-6">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-[#E93C70]">{recipes.length}</div>
@@ -109,7 +109,7 @@ const CreatorProfile = () => {
                 )}
                 {creator.threadsUrl && (
                   <a href={creator.threadsUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-sm bg-black text-white">
-                     <FaThreads size={18} />
+                    <FaThreads size={18} />
                   </a>
                 )}
               </div>
@@ -128,15 +128,15 @@ const CreatorProfile = () => {
               </div>
               <h2 className="text-2xl font-bold text-gray-900">Most Viewed Recipes</h2>
             </div>
-            
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
               {topRecipes.map((recipe, idx) => (
                 <Link key={recipe.id} to={`/cook/${recipe.slug}`} className="block group">
                   <div className="aspect-square rounded-[1.5rem] md:rounded-[2rem] overflow-hidden relative mb-3 shadow-md md:shadow-xl shadow-gray-200/50">
-                    <img 
-                      src={recipe.imageUrl} 
-                      alt={recipe.title} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                    <img
+                      src={recipe.imageUrl}
+                      alt={recipe.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                     <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-2 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-sm">
@@ -153,36 +153,36 @@ const CreatorProfile = () => {
 
         {/* All Listings */}
         <div>
-           <div className="flex items-center gap-3 mb-8">
-              <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-500">
-                <Grid size={20} />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900">All Listings</h2>
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-500">
+              <Grid size={20} />
             </div>
-            
-            {recipes.length === 0 ? (
-              <p className="text-gray-500 text-center py-10">This creator hasn't posted any recipes yet.</p>
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-                {recipes.map((recipe) => (
-                  <Link key={recipe.id} to={`/cook/${recipe.slug}`} className="block group">
-                    <div className="aspect-square rounded-[1.5rem] md:rounded-[2rem] overflow-hidden relative mb-3 shadow-md md:shadow-xl shadow-gray-200/50">
-                      <img 
-                        src={recipe.imageUrl} 
-                        alt={recipe.title} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                      <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-2 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-sm">
-                        <Heart size={12} className="text-[#E93C70]" /> {recipe.likes}
-                      </div>
+            <h2 className="text-2xl font-bold text-gray-900">All Listings</h2>
+          </div>
+
+          {recipes.length === 0 ? (
+            <p className="text-gray-500 text-center py-10">This creator hasn't posted any recipes yet.</p>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+              {recipes.map((recipe) => (
+                <Link key={recipe.id} to={`/cook/${recipe.slug}`} className="block group">
+                  <div className="aspect-square rounded-[1.5rem] md:rounded-[2rem] overflow-hidden relative mb-3 shadow-md md:shadow-xl shadow-gray-200/50">
+                    <img
+                      src={recipe.imageUrl}
+                      alt={recipe.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                    <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-2 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-sm">
+                      <Heart size={12} className="text-[#E93C70]" /> {recipe.likes}
                     </div>
-                    <h3 className="text-sm font-bold text-gray-900 group-hover:text-primary transition-colors line-clamp-1 mb-0.5">{recipe.title}</h3>
-                    <p className="text-[10px] text-gray-500 font-medium">{recipe.category}</p>
-                  </Link>
-                ))}
-              </div>
-            )}
+                  </div>
+                  <h3 className="text-sm font-bold text-gray-900 group-hover:text-primary transition-colors line-clamp-1 mb-0.5">{recipe.title}</h3>
+                  <p className="text-[10px] text-gray-500 font-medium">{recipe.category}</p>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -46,3 +46,38 @@ export interface CollaborationRequest {
   message: string;
   createdAt: number;
 }
+
+export type UserRole = 'admin' | 'collaborator';
+
+export interface AppUser {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  avatarUrl?: string;
+  bio?: string;
+  youtubeUrl?: string;
+  instagramUrl?: string;
+  facebookUrl?: string;
+  threadsUrl?: string;
+  twitterUrl?: string;
+  isActive?: boolean;
+  createdAt?: number;
+  updatedAt?: number;
+}
+
+export interface AuthSession {
+  token: string;
+  user: AppUser;
+}
+
+export interface CollaboratorPost {
+  id: string;
+  userId: string;
+  title: string;
+  content: string;
+  imageUrl: string;
+  status: 'draft' | 'published';
+  createdAt: number;
+  updatedAt: number;
+}
