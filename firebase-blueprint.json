@@ -1,0 +1,46 @@
+{
+  "entities": {
+    "Recipe": {
+      "title": "Recipe",
+      "description": "A cooking recipe with details and social links",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "slug": { "type": "string" },
+        "description": { "type": "string" },
+        "ingredients": { "type": "array", "items": { "type": "string" } },
+        "steps": { "type": "array", "items": { "type": "string" } },
+        "category": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "youtubeId": { "type": "string" },
+        "instagramUrl": { "type": "string" },
+        "likes": { "type": "integer" },
+        "featured": { "type": "boolean" },
+        "createdAt": { "type": "integer" }
+      },
+      "required": ["title", "slug", "description", "ingredients", "category", "imageUrl", "likes", "featured", "createdAt"]
+    },
+    "Contact": {
+      "title": "Contact Message",
+      "description": "User contact form submissions",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "integer" }
+      },
+      "required": ["name", "email", "message", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/recipes/{recipeId}": {
+      "schema": "Recipe",
+      "description": "Collection of recipes"
+    },
+    "/contacts/{contactId}": {
+      "schema": "Contact",
+      "description": "Collection of contact messages"
+    }
+  }
+}

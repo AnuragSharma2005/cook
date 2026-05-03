@@ -1,0 +1,149 @@
+import { Recipe, ContactMessage, CollaborationRequest } from '../types';
+
+const RECIPES_KEY = 'kaju_recipes';
+const CONTACTS_KEY = 'kaju_contacts';
+const COLLABS_KEY = 'kaju_collabs';
+
+// Initial dummy data if storage is empty
+const INITIAL_RECIPES: Recipe[] = [
+  { 
+    id: '1', 
+    title: 'Mango Summer Shake', 
+    slug: 'mango-summer-shake', 
+    category: 'Shakes', 
+    description: 'A refreshing tropical blend perfect for hot summer days.',
+    ingredients: ['1 ripe mango', '1 cup milk', '2 tbsp honey', 'Ice cubes'],
+    steps: ['Peel and chop mango', 'Blend all ingredients', 'Serve chilled'],
+    imageUrl: 'https://images.unsplash.com/photo-1546173159-315724a31696?q=80&w=400&h=400&fit=crop', 
+    likes: 124,
+    featured: true,
+    createdAt: Date.now() - 100000 
+  },
+  { 
+    id: '2', 
+    title: 'Healthy Buddha Bowl', 
+    slug: 'healthy-buddha-bowl', 
+    category: 'Healthy', 
+    description: 'A nutrient-dense bowl filled with fresh vegetables and grains.',
+    ingredients: ['Quinoa', 'Avocado', 'Chickpeas', 'Spinach', 'Tahini dressing'],
+    steps: ['Cook quinoa', 'Assemble bowl', 'Drizzle with tahini'],
+    imageUrl: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=400&h=400&fit=crop', 
+    likes: 89,
+    featured: true,
+    createdAt: Date.now() - 200000
+  },
+  {
+    id: '3',
+    title: 'Crispy Avocado Toast',
+    slug: 'crispy-avocado-toast',
+    category: 'Healthy',
+    description: 'The golden classic for a perfect breakfast or brunch.',
+    ingredients: ['Sourdough bread', 'Ripe avocado', 'Chili flakes', 'Lemon', 'Poached egg'],
+    steps: ['Toast the bread', 'Mash avocado with lemon and salt', 'Spread on toast', 'Top with egg and chili'],
+    imageUrl: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?q=80&w=400&h=400&fit=crop',
+    likes: 215,
+    featured: true,
+    createdAt: Date.now() - 300000
+  },
+  {
+    id: '4',
+    title: 'Blueberry Cheesecake',
+    slug: 'blueberry-cheesecake',
+    category: 'Desserts',
+    description: 'Creamy, rich, and topped with a fresh blueberry compote.',
+    ingredients: ['Cream cheese', 'Graham crackers', 'Sugar', 'Blueberries', 'Butter'],
+    steps: ['Make the crust', 'Mix cream cheese filling', 'Bake and chill', 'Add blueberry topping'],
+    imageUrl: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?q=80&w=400&h=400&fit=crop',
+    likes: 342,
+    featured: false,
+    createdAt: Date.now() - 400000
+  },
+  {
+    id: '5',
+    title: 'Classic Cheeseburger',
+    slug: 'classic-cheeseburger',
+    category: 'Fast Food',
+    description: 'Juicy beef patty with melted cheddar and fresh toppings.',
+    ingredients: ['Beef patty', 'Cheddar cheese', 'Brioche bun', 'Lettuce', 'Tomato'],
+    steps: ['Grill the patty', 'Toast buns', 'Assemble with toppings', 'Serve with fries'],
+    imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=400&h=400&fit=crop',
+    likes: 567,
+    featured: false,
+    createdAt: Date.now() - 500000
+  },
+  {
+    id: '6',
+    title: 'Indian Butter Chicken',
+    slug: 'indian-butter-chicken',
+    category: 'Traditional',
+    description: 'A creamy, rich tomato-based curry with tender pieces of chicken.',
+    ingredients: ['Chicken breast', 'Tomato puree', 'Butter', 'Cream', 'Garam masala'],
+    steps: ['Marinate chicken', 'Sauté in spices', 'Simmer in tomato gravy', 'Finish with cream'],
+    imageUrl: 'https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?q=80&w=400&h=400&fit=crop',
+    likes: 890,
+    featured: true,
+    createdAt: Date.now() - 600000
+  }
+];
+
+export const storage = {
+  // Recipes
+  getRecipes: (): Recipe[] => {
+    const data = localStorage.getItem(RECIPES_KEY);
+    if (!data) {
+      localStorage.setItem(RECIPES_KEY, JSON.stringify(INITIAL_RECIPES));
+      return INITIAL_RECIPES;
+    }
+    return JSON.parse(data);
+  },
+  
+  saveRecipe: (recipe: Omit<Recipe, 'id' | 'likes' | 'createdAt'> & { id?: string }) => {
+    const recipes = storage.getRecipes();
+    if (recipe.id) {
+      // Update
+      const index = recipes.findIndex(r => r.id === recipe.id);
+      if (index !== -1) {
+        recipes[index] = { ...recipes[index], ...recipe };
+      }
+    } else {
+      // Create
+      const newRecipe: Recipe = {
+        ...recipe as any,
+        id: Math.random().toString(36).substr(2, 9),
+        likes: 0,
+        createdAt: Date.now()
+      };
+      recipes.unshift(newRecipe);
+    }
+    localStorage.setItem(RECIPES_KEY, JSON.stringify(recipes));
+  },
+
+  deleteRecipe: (id: string) => {
+    const recipes = storage.getRecipes();
+    const filtered = recipes.filter(r => r.id !== id);
+    localStorage.setItem(RECIPES_KEY, JSON.stringify(filtered));
+  },
+
+  likeRecipe: (id: string) => {
+    const recipes = storage.getRecipes();
+    const index = recipes.findIndex(r => r.id === id);
+    if (index !== -1) {
+      recipes[index].likes += 1;
+      localStorage.setItem(RECIPES_KEY, JSON.stringify(recipes));
+    }
+  },
+
+  // Contact Messages
+  saveContact: (msg: Omit<ContactMessage, 'id' | 'createdAt'>) => {
+    const msgs = JSON.parse(localStorage.getItem(CONTACTS_KEY) || '[]');
+    msgs.unshift({ ...msg, id: Date.now().toString(), createdAt: Date.now() });
+    localStorage.setItem(CONTACTS_KEY, JSON.stringify(msgs));
+  },
+
+  // Collab Requests
+  saveCollab: (req: Omit<CollaborationRequest, 'id' | 'createdAt'>) => {
+    const reqs = JSON.parse(localStorage.getItem(COLLABS_KEY) || '[]');
+    reqs.unshift({ ...req, id: Date.now().toString(), createdAt: Date.now() });
+    localStorage.setItem(COLLABS_KEY, JSON.stringify(reqs));
+  }
+};

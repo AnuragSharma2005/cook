@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", serif;
+  
+  --color-primary: #FF4D2D;
+  --color-secondary: #FFA726;
+  --color-brand-bg: #FFFBF7;
+  --color-brand-dark: #2D1A12;
+  --color-muted: #6B5E59;
+}
+
+@layer base {
+  body {
+    @apply bg-brand-bg text-brand-dark font-sans overflow-x-hidden selection:bg-primary/20;
+  }
+}
+
+.recipe-card-shadow {
+  box-shadow: 0 10px 30px -10px rgba(45, 26, 18, 0.1);
+}
+
+.hero-pattern {
+  background-image: radial-gradient(#FF4D2D 0.5px, transparent 0.5px);
+  background-size: 24px 24px;
+  background-color: #FFFBF7;
+}
+
+.glass-morphism {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
