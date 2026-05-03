@@ -1,8 +1,34 @@
-import { Recipe, ContactMessage, CollaborationRequest } from '../types';
+import { Recipe, ContactMessage, CollaborationRequest, Creator } from '../types';
 
-const RECIPES_KEY = 'kaju_recipes';
+const RECIPES_KEY = 'kaju_recipes_v2';
 const CONTACTS_KEY = 'kaju_contacts';
 const COLLABS_KEY = 'kaju_collabs';
+const CREATORS_KEY = 'kaju_creators_v2';
+
+export const INITIAL_CREATORS: Creator[] = [
+  {
+    id: 'c1',
+    name: "Kaju's Kitchen",
+    avatarUrl: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&h=400&fit=crop',
+    bio: 'Sharing my passion for everyday cooking with a modern twist.',
+    youtubeUrl: 'https://youtube.com',
+    instagramUrl: 'https://instagram.com',
+    facebookUrl: 'https://facebook.com',
+    threadsUrl: 'https://threads.net'
+  },
+  {
+    id: 'c2',
+    name: 'Chef Maria',
+    avatarUrl: 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=400&h=400&fit=crop',
+    bio: 'Baking and desserts are my love language.'
+  },
+  {
+    id: 'c3',
+    name: 'Healthy Eats',
+    avatarUrl: 'https://images.unsplash.com/photo-1581349485608-9469926a8e5e?w=400&h=400&fit=crop',
+    bio: 'Wholesome, nutritious, and delicious recipes for a better life.'
+  }
+];
 
 // Initial dummy data if storage is empty
 const INITIAL_RECIPES: Recipe[] = [
@@ -17,7 +43,8 @@ const INITIAL_RECIPES: Recipe[] = [
     imageUrl: 'https://images.unsplash.com/photo-1546173159-315724a31696?q=80&w=400&h=400&fit=crop', 
     likes: 124,
     featured: true,
-    createdAt: Date.now() - 100000 
+    createdAt: Date.now() - 100000,
+    creatorId: 'c1'
   },
   { 
     id: '2', 
@@ -30,7 +57,8 @@ const INITIAL_RECIPES: Recipe[] = [
     imageUrl: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=400&h=400&fit=crop', 
     likes: 89,
     featured: true,
-    createdAt: Date.now() - 200000
+    createdAt: Date.now() - 200000,
+    creatorId: 'c3'
   },
   {
     id: '3',
@@ -43,7 +71,8 @@ const INITIAL_RECIPES: Recipe[] = [
     imageUrl: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?q=80&w=400&h=400&fit=crop',
     likes: 215,
     featured: true,
-    createdAt: Date.now() - 300000
+    createdAt: Date.now() - 300000,
+    creatorId: 'c1'
   },
   {
     id: '4',
@@ -56,7 +85,8 @@ const INITIAL_RECIPES: Recipe[] = [
     imageUrl: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?q=80&w=400&h=400&fit=crop',
     likes: 342,
     featured: false,
-    createdAt: Date.now() - 400000
+    createdAt: Date.now() - 400000,
+    creatorId: 'c2'
   },
   {
     id: '5',
@@ -69,7 +99,8 @@ const INITIAL_RECIPES: Recipe[] = [
     imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=400&h=400&fit=crop',
     likes: 567,
     featured: false,
-    createdAt: Date.now() - 500000
+    createdAt: Date.now() - 500000,
+    creatorId: 'c1'
   },
   {
     id: '6',
@@ -82,11 +113,22 @@ const INITIAL_RECIPES: Recipe[] = [
     imageUrl: 'https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?q=80&w=400&h=400&fit=crop',
     likes: 890,
     featured: true,
-    createdAt: Date.now() - 600000
+    createdAt: Date.now() - 600000,
+    creatorId: 'c1'
   }
 ];
 
 export const storage = {
+  // Creators
+  getCreators: (): Creator[] => {
+    const data = localStorage.getItem(CREATORS_KEY);
+    if (!data) {
+      localStorage.setItem(CREATORS_KEY, JSON.stringify(INITIAL_CREATORS));
+      return INITIAL_CREATORS;
+    }
+    return JSON.parse(data);
+  },
+
   // Recipes
   getRecipes: (): Recipe[] => {
     const data = localStorage.getItem(RECIPES_KEY);
@@ -129,6 +171,15 @@ export const storage = {
     const index = recipes.findIndex(r => r.id === id);
     if (index !== -1) {
       recipes[index].likes += 1;
+      localStorage.setItem(RECIPES_KEY, JSON.stringify(recipes));
+    }
+  },
+
+  unlikeRecipe: (id: string) => {
+    const recipes = storage.getRecipes();
+    const index = recipes.findIndex(r => r.id === id);
+    if (index !== -1 && recipes[index].likes > 0) {
+      recipes[index].likes -= 1;
       localStorage.setItem(RECIPES_KEY, JSON.stringify(recipes));
     }
   },

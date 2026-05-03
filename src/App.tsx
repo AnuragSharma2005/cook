@@ -10,6 +10,7 @@ const RecipeDetail = lazy(() => import('./pages/RecipeDetail'));
 const Admin = lazy(() => import('./pages/Admin'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Collab = lazy(() => import('./pages/Collab'));
+const CreatorProfile = lazy(() => import('./pages/CreatorProfile'));
 
 const LoadingFallback = () => (
   <div className="min-h-screen flex items-center justify-center bg-brand-bg">
@@ -32,6 +33,7 @@ export default function App() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/cook/:slug" element={<RecipeDetail />} />
+                <Route path="/creator/:id" element={<CreatorProfile />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/collab" element={<Collab />} />

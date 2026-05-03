@@ -1,3 +1,15 @@
+export interface Creator {
+  id: string;
+  name: string;
+  avatarUrl: string;
+  bio: string;
+  youtubeUrl?: string;
+  instagramUrl?: string;
+  facebookUrl?: string;
+  threadsUrl?: string;
+  twitterUrl?: string;
+}
+
 export interface Recipe {
   id: string;
   title: string;
@@ -12,6 +24,7 @@ export interface Recipe {
   likes: number;
   featured: boolean;
   createdAt: number;
+  creatorId?: string;
 }
 
 export type Category = 'Drinks' | 'Healthy' | 'Shakes' | 'Fast Food' | 'Desserts' | 'Traditional';
