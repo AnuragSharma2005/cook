@@ -24,15 +24,15 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen pt-12 pb-20 px-6">
-      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-20 items-center">
+    <div className="min-h-screen pb-20 px-6 bg-[#FFE4E8]">
+      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-20 items-center pt-6 md:pt-12">
         <div>
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
           >
             <span className="text-primary font-bold text-xs uppercase tracking-widest mb-6 block">Get In Touch</span>
-            <h1 className="text-6xl font-extrabold font-serif mb-8 leading-tight">Love Kaju's <br/>Recipes? <span className="text-primary italic">Talk to me!</span></h1>
+            <h1 className="text-5xl font-extrabold font-serif mb-8 leading-tight">Love Recipes? <br /><span className="text-primary italic">Talk to me!</span></h1>
             <p className="text-muted text-lg mb-12 leading-relaxed">
                 Whether you have a question about a recipe, want to share your results, or just want to say hi, I'm always listening!
             </p>

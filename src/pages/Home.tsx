@@ -73,7 +73,7 @@ const Home = () => {
             className="text-4xl md:text-[3.5rem] font-black font-serif leading-[1.1] text-gray-900 uppercase tracking-tight mb-2"
           >
             Your free digital<br />
-            <span className="text-[#E93C70]">recipe box</span>
+            <span className="inline-block border-4 border-gray-900 rounded-full px-6 md:px-8 py-2 md:py-3 mt-2 text-[#E93C70]">recipe box</span>
           </motion.h1>
         </div>
       </section>
@@ -180,7 +180,7 @@ const Home = () => {
                     </div>
                   </div>
                   <h3 className="text-xs md:text-xl font-bold text-gray-800 mb-0.5 md:mb-2 line-clamp-1 md:line-clamp-2 md:group-hover:text-primary transition-colors">{recipe.title}</h3>
-                  <p className="text-[10px] md:text-sm text-gray-400 font-bold tracking-tight">by kaju's kitchen</p>
+                  <p className="text-[10px] md:text-sm text-gray-400 font-bold tracking-tight">by cookwithkitchen</p>
 
                   <div className="hidden md:flex items-center gap-1.5 mt-3 text-xs font-bold text-muted">
                     <Star size={14} className="text-yellow-400 fill-yellow-400" />
@@ -208,7 +208,7 @@ const Home = () => {
                     <h3 className="text-2xl font-bold mb-4 group-hover:text-primary transition-colors text-gray-900">{recipe.title}</h3>
                     <div className="flex items-center gap-4 text-sm font-bold">
                       <span className="flex items-center gap-1"><Heart size={14} /> {recipe.likes}</span>
-                      <span className="text-muted">By Kaju's Kitchen</span>
+                      <span className="text-muted">By cookwithkitchen</span>
                     </div>
                   </div>
                 </Link>
@@ -216,8 +216,50 @@ const Home = () => {
             </div>
           </div>
         </section>
-      )}
+      )} 
+           <section className="px-4 sm:px-6 py-12 sm:py-16 md:py-20 bg-brand-bg relative">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-gradient-to-r from-[#D32F52] to-[#D32F52] rounded-2xl sm:rounded-3xl md:rounded-[3rem] py-12 sm:py-16 md:py-20 px-4 sm:px-8 md:px-16 relative overflow-hidden md:overflow-visible">
+            
+            {/* Mobile image on top */}
+            <div className="block md:hidden mb-8">
+              <div className="mx-auto w-[320px] h-[380px] rounded-[2rem] overflow-hidden shadow-2xl border-[10px] border-white">
+                <img 
+                  src="https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=500&h=600&fit=crop"
+                  alt="Food Recipe"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
 
+            <div className="w-full md:w-1/2 relative z-10 text-center md:text-left mx-auto md:mx-0">
+              <h2 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-black text-white mb-2 sm:mb-3 md:mb-1 leading-tight">
+                Are You a Creator?
+              </h2>
+              <p className="text-sm sm:text-base md:text-xl lg:text-2xl font-bold text-white mb-4 sm:mb-6 md:mb-10">
+                Share Your Amazing Recipes!
+              </p>
+              <Link 
+                to="/collab"
+                className="inline-block bg-white text-[#D32F52] font-bold px-5 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 rounded-full hover:shadow-lg transition-all shadow-md text-xs sm:text-sm md:text-base"
+              >
+                Start Collaborating
+              </Link>
+            </div>
+
+            {/* Right Side - Image with Tilt - Hidden on mobile, visible on md and above */}
+            <div className="hidden md:block absolute left-1/2 md:left-auto md:right-0 top-full md:top-4/5 -translate-y-1/2 h-96 w-96">
+              <div className="w-80 h-96 rounded-[2.5rem] overflow-hidden shadow-2xl border-[10px] border-white transform -rotate-12">
+                <img 
+                  src="https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=500&h=600&fit=crop"
+                  alt="Food Recipe"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

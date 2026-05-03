@@ -34,7 +34,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          <div>
+          {/* <div>
             <h4 className="font-bold mb-6 text-sm uppercase tracking-widest text-white/90">Categories</h4>
             <ul className="space-y-4 text-white/70 text-sm">
               <li className="hover:text-white cursor-pointer transition-colors">Healthy Recipes</li>
@@ -42,7 +42,7 @@ const Footer = () => {
               <li className="hover:text-white cursor-pointer transition-colors">Dessert Bliss</li>
               <li className="hover:text-white cursor-pointer transition-colors">Street Food</li>
             </ul>
-          </div>
+          </div> */}
 
           <div>
             <h4 className="font-bold mb-6 text-sm uppercase tracking-widest text-white/90">Stay Updated</h4>

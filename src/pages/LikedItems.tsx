@@ -39,8 +39,8 @@ const LikedItems = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDF7F8] pb-24 pt-20 md:pb-20">
-      <section className="px-6 pt-6 pb-8">
+    <div className="min-h-screen bg-[#FDF7F8] pb-24 pt-0 md:pb-20">
+      <section className="px-6 pt-4 pb-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-5">
             <Link to="/" className="inline-flex items-center gap-2 text-gray-500 hover:text-primary transition-colors font-semibold">

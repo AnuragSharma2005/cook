@@ -25,8 +25,8 @@ const Creators = () => {
   const getRecipeCount = (creatorId: string) => recipes.filter((recipe) => recipe.creatorId === creatorId).length;
 
   return (
-    <div className="min-h-screen bg-[#FDF7F8] pb-24 pt-20 md:pb-20">
-      <section className="px-6 pt-6 pb-10">
+    <div className="min-h-screen bg-[#FDF7F8] pb-24 pt-0 md:pb-20">
+      <section className="px-6 pt-4 pb-10">
         <div className="max-w-6xl mx-auto">
           <Link to="/" className="inline-flex items-center gap-2 text-gray-500 hover:text-primary mb-8 transition-colors font-semibold">
             <ArrowLeft size={18} /> Back to Home

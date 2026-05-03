@@ -82,7 +82,7 @@ const RecipeDetail = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  if (loading) return <div className="min-h-screen bg-white flex items-center justify-center font-bold text-gray-300">kaju's kitchen...</div>;
+  if (loading) return <div className="min-h-screen bg-white flex items-center justify-center font-bold text-gray-300">cookwithkitchen</div>;
   if (!recipe) return <div className="p-40 text-center">Recipe not found.</div>;
 
   return (

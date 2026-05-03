@@ -46,15 +46,15 @@ const CreatorProfile = () => {
   const topRecipes = sortedByLikes.slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-[#FDF7F8] md:bg-white pb-24 pt-20">
+    <div className="min-h-screen bg-[#FDF7F8] md:bg-white pb-24 pt-0">
       {/* Header Section */}
-      <div className="bg-[#FFE4E8]/30 pt-12 pb-20 px-6">
+      <div className="bg-[#FFE4E8]/30 pt-6 pb-20 px-6">
         <div className="max-w-4xl mx-auto">
-          <Link to="/" className="inline-flex items-center gap-2 text-gray-500 hover:text-primary mb-8 transition-colors">
+          <Link to="/" className="inline-flex items-center gap-2 text-gray-500 hover:text-primary mb-6 transition-colors">
             <ArrowLeft size={20} /> Back to Home
           </Link>
 
-          <div className="flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
+          <div className="grid grid-cols-[auto_1fr] items-start gap-6 text-left">
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -67,16 +67,17 @@ const CreatorProfile = () => {
               initial={{ x: 20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.1 }}
+              className="flex-1"
             >
-              <h1 className="text-4xl md:text-5xl font-black font-serif text-gray-900 mb-4">{creator.name}</h1>
+              <h1 className="text-3xl md:text-4xl font-black font-serif text-gray-900 mb-4 whitespace-nowrap overflow-hidden text-ellipsis">{creator.name}</h1>
               <p className="text-lg text-gray-600 max-w-xl">{creator.bio}</p>
 
-              <div className="flex items-center justify-center md:justify-start gap-6 mt-6">
+              <div className="flex flex-wrap items-center justify-start gap-6 mt-6">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-[#E93C70]">{recipes.length}</div>
                   <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Recipes</div>
                 </div>
-                <div className="w-px h-10 bg-gray-200"></div>
+                <div className="w-px h-10 bg-gray-200" />
                 <div className="text-center">
                   <div className="text-2xl font-bold text-[#E93C70]">
                     {recipes.reduce((acc, curr) => acc + curr.likes, 0)}
@@ -84,36 +85,37 @@ const CreatorProfile = () => {
                   <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Likes</div>
                 </div>
               </div>
-
-              {/* Social Media Links */}
-              <div className="flex items-center justify-center md:justify-start gap-4 mt-6">
-                {creator.youtubeUrl && (
-                  <a href={creator.youtubeUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-sm bg-[#FF0000] text-white">
-                    <FaYoutube size={18} />
-                  </a>
-                )}
-                {creator.instagramUrl && (
-                  <a href={creator.instagramUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-sm bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white">
-                    <FaInstagram size={18} />
-                  </a>
-                )}
-                {creator.facebookUrl && (
-                  <a href={creator.facebookUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-sm bg-[#1877F2] text-white">
-                    <FaFacebook size={18} />
-                  </a>
-                )}
-                {creator.twitterUrl && (
-                  <a href={creator.twitterUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-sm bg-black text-white">
-                    <FaXTwitter size={18} />
-                  </a>
-                )}
-                {creator.threadsUrl && (
-                  <a href={creator.threadsUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-sm bg-black text-white">
-                    <FaThreads size={18} />
-                  </a>
-                )}
-              </div>
             </motion.div>
+
+            {/* Social Media Links */}
+            <div className="col-span-full flex flex-wrap justify-center md:justify-start gap-4 mt-6">
+              {[
+                { url: creator.youtubeUrl, icon: <FaYoutube size={18} />, activeClass: 'bg-[#FF0000] text-white' },
+                { url: creator.instagramUrl, icon: <FaInstagram size={18} />, activeClass: 'bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white' },
+                { url: creator.facebookUrl, icon: <FaFacebook size={18} />, activeClass: 'bg-[#1877F2] text-white' },
+                { url: creator.twitterUrl, icon: <FaXTwitter size={18} />, activeClass: 'bg-[#1D9BF0] text-white' },
+                { url: creator.threadsUrl, icon: <FaThreads size={18} />, activeClass: 'bg-[#000000] text-white' },
+              ].map((item, idx) => (
+                item.url ? (
+                  <a
+                    key={idx}
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-sm ${item.activeClass}`}
+                  >
+                    {item.icon}
+                  </a>
+                ) : (
+                  <div
+                    key={idx}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center opacity-60 ${item.activeClass} shadow-sm`}
+                  >
+                    {item.icon}
+                  </div>
+                )
+              ))}
+            </div>
           </div>
         </div>
       </div>
