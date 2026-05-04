@@ -16,12 +16,22 @@ const CreatorProfile = () => {
     const loadData = () => {
       setLoading(true);
       const allCreators = storage.getCreators();
-      const foundCreator = allCreators.find(c => c.id === id);
+      // try to find by id, then by matching social url or name fallback
+      let foundCreator = allCreators.find(c => c.id === id);
+      if (!foundCreator) {
+        // if id looks like a domain (contains a dot), try matching against social urls
+        foundCreator = allCreators.find(c => [c.instagramUrl, c.youtubeUrl, c.facebookUrl, c.twitterUrl, c.threadsUrl].some(u => u && String(u).includes(String(id))));
+      }
+      if (!foundCreator) {
+        // try matching by slugified name
+        const slug = String(id || '').toLowerCase();
+        foundCreator = allCreators.find(c => String(c.name).toLowerCase().includes(slug));
+      }
 
       if (foundCreator) {
         setCreator(foundCreator);
         const allRecipes = storage.getRecipes();
-        const creatorRecipes = allRecipes.filter(r => r.creatorId === id);
+        const creatorRecipes = allRecipes.filter(r => r.creatorId === foundCreator!.id);
         setRecipes(creatorRecipes);
       }
       setLoading(false);
@@ -108,7 +118,7 @@ const CreatorProfile = () => {
                 item.url ? (
                   <a
                     key={idx}
-                    href={item.url}
+                    href={(item.url && String(item.url).startsWith('http')) ? item.url : `https://${item.url}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={`w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-sm ${item.activeClass}`}

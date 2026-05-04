@@ -9,10 +9,26 @@ const Creators = () => {
   const [creators, setCreators] = useState<Creator[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setCreators(storage.getCreators());
-    setRecipes(storage.getRecipes());
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const creatorsData = await storage.getCreatorsAsync();
+        const recipesData = await storage.getRecipesAsync();
+        setCreators(creatorsData);
+        setRecipes(recipesData);
+      } catch (error) {
+        console.error('Failed to load data:', error);
+        // Fallback to sync methods
+        setCreators(storage.getCreators());
+        setRecipes(storage.getRecipes());
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
   }, []);
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -23,6 +39,17 @@ const Creators = () => {
   });
 
   const getRecipeCount = (creatorId: string) => recipes.filter((recipe) => recipe.creatorId === creatorId).length;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FDF7F8] pb-24 pt-0 md:pb-20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading creators...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#FDF7F8] pb-24 pt-0 md:pb-20">

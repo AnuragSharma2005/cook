@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { ArrowLeft, Heart, Search, Trash2 } from 'lucide-react';
 import { storage } from '../lib/storage';
+import { appScriptApi } from '../lib/appScriptApi';
 import { Recipe } from '../types';
 
 const LikedItems = () => {
@@ -11,8 +12,13 @@ const LikedItems = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    setRecipes(storage.getRecipes());
-    setLikedIds(storage.getLikedRecipeIds());
+    const loadData = async () => {
+      const allRecipes = await storage.getRecipesAsync();
+      setRecipes(allRecipes);
+      setLikedIds(storage.getLikedRecipeIds());
+    };
+
+    loadData();
   }, []);
 
   const recipeMap = new Map(recipes.map((recipe) => [recipe.id, recipe]));
@@ -29,7 +35,8 @@ const LikedItems = () => {
     );
   });
 
-  const handleUnlike = (id: string) => {
+  const handleUnlike = async (id: string) => {
+    await appScriptApi.adjustRecipeLikes(id, -1);
     storage.unlikeRecipe(id);
     const nextIds = storage.removeLikedRecipe(id);
     setLikedIds(nextIds);
@@ -103,10 +110,10 @@ const LikedItems = () => {
                       />
                       <div className="absolute inset-0 bg-linear-to-t from-black/25 to-transparent" />
                       <button
-                        onClick={(event) => {
+                        onClick={async (event) => {
                           event.preventDefault();
                           event.stopPropagation();
-                          handleUnlike(recipe.id);
+                          await handleUnlike(recipe.id);
                         }}
                         className="absolute top-3 right-3 h-10 w-10 rounded-full bg-white/95 text-primary flex items-center justify-center shadow-md"
                         aria-label={`Remove ${recipe.title} from liked items`}

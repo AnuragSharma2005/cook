@@ -2,12 +2,16 @@ const SHEETS = {
   USERS: 'Users',
   SESSIONS: 'Sessions',
   POSTS: 'Posts',
+  CREATORS: 'Creators',
+  RECIPES: 'Recipes',
 };
 
 const HEADERS = {
   USERS: ['id', 'email', 'passwordHash', 'role', 'name', 'avatarUrl', 'bio', 'youtubeUrl', 'instagramUrl', 'facebookUrl', 'threadsUrl', 'twitterUrl', 'isActive', 'createdAt', 'updatedAt'],
   SESSIONS: ['token', 'userId', 'createdAt', 'expiresAt'],
   POSTS: ['id', 'userId', 'title', 'content', 'imageUrl', 'status', 'createdAt', 'updatedAt'],
+  CREATORS: ['id', 'name', 'avatarUrl', 'bio', 'youtubeUrl', 'instagramUrl', 'facebookUrl', 'threadsUrl', 'twitterUrl', 'createdAt', 'updatedAt'],
+  RECIPES: ['id', 'title', 'slug', 'category', 'description', 'ingredients', 'steps', 'imageUrl', 'likes', 'featured', 'creatorId', 'createdAt', 'updatedAt'],
 };
 
 function doGet() {
@@ -38,6 +42,20 @@ function doPost(e) {
         return handleListMyPosts_(params);
       case 'savePost':
         return handleSavePost_(params);
+      case 'listCreators':
+        return handleListCreators_(params);
+      case 'createCreator':
+        return handleCreateCreator_(params);
+      case 'updateCreator':
+        return handleUpdateCreator_(params);
+      case 'listRecipes':
+        return handleListRecipes_(params);
+      case 'adjustRecipeLikes':
+        return handleAdjustRecipeLikes_(params);
+      case 'createRecipe':
+        return handleCreateRecipe_(params);
+      case 'updateRecipe':
+        return handleUpdateRecipe_(params);
       default:
         throw new Error('Unknown action: ' + action);
     }
@@ -148,7 +166,8 @@ function handleListCollaborators_(params) {
     throw new Error('Admin access required.');
   }
 
-  const collaborators = getUsers_().filter((user) => user.role === 'collaborator');
+  // Return accounts that are collaborators OR creators (unified model)
+  const collaborators = getUsers_().filter((user) => String(user.role) === 'collaborator' || String(user.role) === 'creator');
   return jsonResponse_({ ok: true, data: collaborators.map(sanitizeUser_) });
 }
 
@@ -167,7 +186,8 @@ function handleCreateCollaborator_(params) {
     id: Utilities.getUuid(),
     email,
     passwordHash: hashPassword_(password),
-    role: 'collaborator',
+    // Treat admin-created collaborator accounts as creators by default
+    role: String(params.role || 'creator'),
     name: String(params.name || '').trim() || email.split('@')[0],
     avatarUrl: String(params.avatarUrl || ''),
     bio: String(params.bio || ''),
@@ -198,6 +218,26 @@ function handleCreateCollaborator_(params) {
     user.createdAt,
     user.updatedAt,
   ]);
+
+  // Also create a corresponding Creator entry so collaborators can appear as creators on the site
+  try {
+    appendRow_(SHEETS.CREATORS, [
+      user.id,
+      user.name,
+      user.avatarUrl,
+      user.bio,
+      user.youtubeUrl,
+      user.instagramUrl,
+      user.facebookUrl,
+      user.threadsUrl,
+      user.twitterUrl,
+      user.createdAt,
+      user.updatedAt,
+    ]);
+  } catch (e) {
+    // Don't fail collaborator creation if creators sheet append fails; log for debugging
+    Logger.log('Failed to create linked creator for user ' + user.id + ': ' + (e && e.message ? e.message : e));
+  }
 
   return jsonResponse_({ ok: true, data: sanitizeUser_(user) });
 }
@@ -318,6 +358,324 @@ function handleSavePost_(params) {
   }
 
   return jsonResponse_({ ok: true, data: post });
+}
+
+function handleListCreators_(params) {
+  const page = Math.max(1, Number(params.page || 1));
+  const pageSize = Math.min(100, Math.max(1, Number(params.pageSize || 12)));
+  const creators = getCreators_();
+  const paginated = paginateItems_(creators, page, pageSize);
+  return jsonResponse_({ ok: true, data: paginated });
+}
+
+function handleCreateCreator_(params) {
+  requireAdmin_(String(params.token || ''));
+
+  const now = Date.now();
+  const creator = {
+    id: Utilities.getUuid(),
+    name: String(params.name || '').trim() || 'Unnamed Creator',
+    avatarUrl: String(params.avatarUrl || ''),
+    bio: String(params.bio || ''),
+    youtubeUrl: String(params.youtubeUrl || ''),
+    instagramUrl: String(params.instagramUrl || ''),
+    facebookUrl: String(params.facebookUrl || ''),
+    threadsUrl: String(params.threadsUrl || ''),
+    twitterUrl: String(params.twitterUrl || ''),
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  appendRow_(SHEETS.CREATORS, [
+    creator.id,
+    creator.name,
+    creator.avatarUrl,
+    creator.bio,
+    creator.youtubeUrl,
+    creator.instagramUrl,
+    creator.facebookUrl,
+    creator.threadsUrl,
+    creator.twitterUrl,
+    creator.createdAt,
+    creator.updatedAt,
+  ]);
+
+  return jsonResponse_({ ok: true, data: creator });
+}
+
+function getCreators_() {
+  // Prefer 'creator' users from the Users sheet (unified model), but also include
+  // legacy rows from the Creators sheet that don't have a matching user id.
+  const users = getUsers_();
+  const userCreators = users
+    .filter((u) => String(u.role) === 'creator')
+    .map((u) => ({
+      id: u.id,
+      name: u.name,
+      avatarUrl: u.avatarUrl || '',
+      bio: u.bio || '',
+      youtubeUrl: u.youtubeUrl || '',
+      instagramUrl: u.instagramUrl || '',
+      facebookUrl: u.facebookUrl || '',
+      threadsUrl: u.threadsUrl || '',
+      twitterUrl: u.twitterUrl || '',
+    }));
+
+  const sheetCreators = readSheetObjects_(SHEETS.CREATORS).map((c) => ({
+    id: c.id,
+    name: c.name,
+    avatarUrl: c.avatarUrl || '',
+    bio: c.bio || '',
+    youtubeUrl: c.youtubeUrl || '',
+    instagramUrl: c.instagramUrl || '',
+    facebookUrl: c.facebookUrl || '',
+    threadsUrl: c.threadsUrl || '',
+    twitterUrl: c.twitterUrl || '',
+  }));
+
+  // Merge: include sheet creators only if their id is not present in userCreators
+  const existingIds = userCreators.map((c) => String(c.id));
+  const merged = userCreators.concat(sheetCreators.filter((c) => !existingIds.includes(String(c.id))));
+  return merged;
+}
+
+function getRecipes_() {
+  return readSheetObjects_(SHEETS.RECIPES).map(recipe => ({
+    id: recipe.id,
+    title: recipe.title,
+    slug: recipe.slug,
+    category: recipe.category,
+    description: recipe.description || '',
+    ingredients: parseArray_(recipe.ingredients),
+    steps: parseArray_(recipe.steps),
+    imageUrl: recipe.imageUrl || '',
+    likes: Number(recipe.likes) || 0,
+    featured: String(recipe.featured) === 'true',
+    creatorId: recipe.creatorId || '',
+    createdAt: Number(recipe.createdAt) || Date.now(),
+  }));
+}
+
+function slugify_(text) {
+  return String(text || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function parseArray_(value) {
+  if (!value) return [];
+  try {
+    const parsed = JSON.parse(String(value));
+    return Array.isArray(parsed) ? parsed : [String(value)];
+  } catch {
+    return String(value).split('\n').filter(item => item.trim());
+  }
+}
+
+function handleUpdateCreator_(params) {
+  requireAdmin_(String(params.token || ''));
+
+  const creatorsSheet = getSheet_(SHEETS.CREATORS);
+  const rows = creatorsSheet.getDataRange().getValues();
+  const header = rows.shift();
+  const creatorId = String(params.id || '');
+  const rowIndex = rows.findIndex((row) => String(row[0]) === creatorId);
+
+  if (rowIndex === -1) {
+    throw new Error('Creator not found.');
+  }
+
+  const rowNumber = rowIndex + 2;
+  const existing = rows[rowIndex];
+  const now = Date.now();
+
+  const updated = {
+    id: existing[0],
+    name: String(params.name || existing[1]).trim() || existing[1],
+    avatarUrl: String(params.avatarUrl || existing[2] || ''),
+    bio: String(params.bio || existing[3] || ''),
+    youtubeUrl: String(params.youtubeUrl || existing[4] || ''),
+    instagramUrl: String(params.instagramUrl || existing[5] || ''),
+    facebookUrl: String(params.facebookUrl || existing[6] || ''),
+    threadsUrl: String(params.threadsUrl || existing[7] || ''),
+    twitterUrl: String(params.twitterUrl || existing[8] || ''),
+    createdAt: existing[9],
+    updatedAt: now,
+  };
+
+  creatorsSheet.getRange(rowNumber, 1, 1, header.length).setValues([[
+    updated.id,
+    updated.name,
+    updated.avatarUrl,
+    updated.bio,
+    updated.youtubeUrl,
+    updated.instagramUrl,
+    updated.facebookUrl,
+    updated.threadsUrl,
+    updated.twitterUrl,
+    updated.createdAt,
+    updated.updatedAt,
+  ]]);
+
+  return jsonResponse_({ ok: true, data: updated });
+}
+
+function handleListRecipes_(params) {
+  const page = Math.max(1, Number(params.page || 1));
+  const pageSize = Math.min(1000, Math.max(1, Number(params.pageSize || 12)));
+  const recipes = getRecipes_().sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+  const paginated = paginateItems_(recipes, page, pageSize);
+  return jsonResponse_({ ok: true, data: paginated });
+}
+
+function handleAdjustRecipeLikes_(params) {
+  const recipeId = String(params.id || '');
+  const delta = Number(params.delta || 0);
+
+  if (!recipeId) {
+    throw new Error('Recipe id is required.');
+  }
+
+  if (![-1, 1].includes(delta)) {
+    throw new Error('Delta must be 1 or -1.');
+  }
+
+  const recipesSheet = getSheet_(SHEETS.RECIPES);
+  const rows = recipesSheet.getDataRange().getValues();
+  const header = rows.shift();
+  const rowIndex = rows.findIndex((row) => String(row[0]) === recipeId);
+
+  if (rowIndex === -1) {
+    throw new Error('Recipe not found.');
+  }
+
+  const rowNumber = rowIndex + 2;
+  const existing = rows[rowIndex];
+  const nextLikes = Math.max(0, (Number(existing[8]) || 0) + delta);
+
+  recipesSheet.getRange(rowNumber, 1, 1, header.length).setValues([[
+    existing[0],
+    existing[1],
+    existing[2],
+    existing[3],
+    existing[4],
+    existing[5],
+    existing[6],
+    existing[7],
+    nextLikes,
+    existing[9],
+    existing[10],
+    existing[11],
+    Date.now(),
+  ]]);
+
+  return jsonResponse_({ ok: true, data: { id: recipeId, likes: nextLikes } });
+}
+
+function handleCreateRecipe_(params) {
+  // Allow authenticated creators (or admin) to create recipes from their account.
+  const user = requireAnyAuthenticatedUser_(String(params.token || ''));
+  if (!user) throw new Error('Login required.');
+  if (!(user.role === 'creator' || user.role === 'admin')) {
+    throw new Error('Only creators can create recipes.');
+  }
+
+  const now = Date.now();
+  const recipe = {
+    id: Utilities.getUuid(),
+    title: String(params.title || '').trim() || 'Untitled Recipe',
+    slug: String(params.slug || slugify_(String(params.title || ''))),
+    category: String(params.category || 'Other'),
+    description: String(params.description || ''),
+    ingredients: String(params.ingredients || ''),
+    steps: String(params.steps || ''),
+    imageUrl: String(params.imageUrl || ''),
+    likes: Number(params.likes || 0),
+    featured: String(params.featured || 'false') === 'true' ? 'true' : 'false',
+    // default to the authenticated user's id if not provided
+    creatorId: String(params.creatorId || user.id),
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  appendRow_(SHEETS.RECIPES, [
+    recipe.id,
+    recipe.title,
+    recipe.slug,
+    recipe.category,
+    recipe.description,
+    recipe.ingredients,
+    recipe.steps,
+    recipe.imageUrl,
+    recipe.likes,
+    recipe.featured,
+    recipe.creatorId,
+    recipe.createdAt,
+    recipe.updatedAt,
+  ]);
+
+  return jsonResponse_({ ok: true, data: recipe });
+}
+
+function handleUpdateRecipe_(params) {
+  // Allow admin or the recipe's creator to update a recipe.
+  const user = requireAnyAuthenticatedUser_(String(params.token || ''));
+  if (!user) throw new Error('Login required.');
+
+  const recipesSheet = getSheet_(SHEETS.RECIPES);
+  const rows = recipesSheet.getDataRange().getValues();
+  const header = rows.shift();
+  const recipeId = String(params.id || '');
+  const rowIndex = rows.findIndex((row) => String(row[0]) === recipeId);
+
+  if (rowIndex === -1) {
+    throw new Error('Recipe not found.');
+  }
+
+  const existing = rows[rowIndex];
+  const existingCreatorId = String(existing[10] || '');
+  if (!(user.role === 'admin' || user.id === existingCreatorId)) {
+    throw new Error('You can only update recipes you own, unless you are an admin.');
+  }
+  const rowNumber = rowIndex + 2;
+  const now = Date.now();
+
+  const updated = {
+    id: existing[0],
+    title: String(params.title || existing[1]).trim() || existing[1],
+    slug: String(params.slug || existing[2]),
+    category: String(params.category || existing[3]),
+    description: String(params.description || existing[4] || ''),
+    ingredients: String(params.ingredients || existing[5] || ''),
+    steps: String(params.steps || existing[6] || ''),
+    imageUrl: String(params.imageUrl || existing[7] || ''),
+    likes: Number(params.likes !== undefined ? params.likes : existing[8]),
+    featured: String(typeof params.featured === 'undefined' ? existing[9] : params.featured) === 'true' ? 'true' : 'false',
+    creatorId: String(params.creatorId || existing[10] || ''),
+    createdAt: existing[11],
+    updatedAt: now,
+  };
+
+  recipesSheet.getRange(rowNumber, 1, 1, header.length).setValues([[
+    updated.id,
+    updated.title,
+    updated.slug,
+    updated.category,
+    updated.description,
+    updated.ingredients,
+    updated.steps,
+    updated.imageUrl,
+    updated.likes,
+    updated.featured,
+    updated.creatorId,
+    updated.createdAt,
+    updated.updatedAt,
+  ]]);
+
+  return jsonResponse_({ ok: true, data: updated });
 }
 
 function requireAdmin_(token) {
@@ -458,4 +816,20 @@ function verifyAdminSeed() {
     name: user.name,
     isActive: user.isActive
   }));
+}
+
+function paginateItems_(items, page, pageSize) {
+  const total = items.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const start = (currentPage - 1) * pageSize;
+  const end = start + pageSize;
+
+  return {
+    items: items.slice(start, end),
+    page: currentPage,
+    pageSize,
+    total,
+    totalPages,
+  };
 }

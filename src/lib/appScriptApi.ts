@@ -15,6 +15,44 @@ export type CollaboratorInput = {
   threadsUrl?: string;
   twitterUrl?: string;
   isActive?: boolean;
+  role?: 'creator' | 'collaborator' | 'admin';
+};
+
+export type CreatorInput = {
+  id?: string;
+  name: string;
+  avatarUrl?: string;
+  bio?: string;
+  youtubeUrl?: string;
+  instagramUrl?: string;
+  facebookUrl?: string;
+  threadsUrl?: string;
+  twitterUrl?: string;
+};
+
+export type RecipeInput = {
+  id?: string;
+  title: string;
+  slug?: string;
+  category: string;
+  description?: string;
+  ingredients?: string | string[];
+  steps?: string | string[];
+  imageUrl?: string;
+  images?: string[];
+  prepTime?: string;
+  cookTime?: string;
+  likes?: number;
+  featured?: boolean;
+  creatorId?: string;
+};
+
+export type PagedResult<T> = {
+  items: T[];
+  page: number;
+  pageSize: number;
+  total: number;
+  hasMore: boolean;
 };
 
 export type LoginResponse = AuthSession & { role: UserRole };
@@ -72,4 +110,55 @@ export const appScriptApi = {
   listMyPosts: (token: string) => request<CollaboratorPost[]>('listMyPosts', { token }),
   savePost: (token: string, post: Partial<CollaboratorPost> & { title: string; content: string; imageUrl: string; status: 'draft' | 'published' }) =>
     request<CollaboratorPost>('savePost', { token, ...post }),
+  listCreators: () => request<any[]>('listCreators', {}),
+  createCreator: (token: string, creator: CreatorInput) =>
+    request<any>('createCreator', { token, ...creator }),
+  updateCreator: (token: string, creator: CreatorInput & { id: string }) =>
+    request<any>('updateCreator', { token, ...creator }),
+  listRecipes: async () => {
+    const response = await request<PagedResult<any>>('listRecipes', { page: 1, pageSize: 1000 });
+    return Array.isArray((response as any).items) ? (response as any).items : (response as any);
+  },
+  listRecipesPage: (page: number, pageSize: number) => request<PagedResult<any>>('listRecipes', { page, pageSize }),
+  createRecipe: (token: string, recipe: RecipeInput) => {
+    const payload: Record<string, string | number | boolean | undefined> = {
+      token,
+      title: recipe.title,
+      slug: recipe.slug,
+      category: recipe.category,
+      description: recipe.description,
+      imageUrl: recipe.imageUrl,
+      // support multiple images as JSON
+      images: Array.isArray(recipe.images) ? JSON.stringify(recipe.images) : undefined,
+      prepTime: recipe['prepTime'],
+      cookTime: recipe['cookTime'],
+      likes: recipe.likes,
+      featured: recipe.featured,
+      creatorId: recipe.creatorId,
+      ingredients: typeof recipe.ingredients === 'string' ? recipe.ingredients : JSON.stringify(recipe.ingredients || []),
+      steps: typeof recipe.steps === 'string' ? recipe.steps : JSON.stringify(recipe.steps || []),
+    };
+    return request<any>('createRecipe', payload);
+  },
+  updateRecipe: (token: string, recipe: RecipeInput & { id: string }) => {
+    const payload: Record<string, string | number | boolean | undefined> = {
+      token,
+      id: recipe.id,
+      title: recipe.title,
+      slug: recipe.slug,
+      category: recipe.category,
+      description: recipe.description,
+      imageUrl: recipe.imageUrl,
+      images: Array.isArray(recipe.images) ? JSON.stringify(recipe.images) : undefined,
+      prepTime: recipe['prepTime'],
+      cookTime: recipe['cookTime'],
+      likes: recipe.likes,
+      featured: recipe.featured,
+      creatorId: recipe.creatorId,
+      ingredients: typeof recipe.ingredients === 'string' ? recipe.ingredients : JSON.stringify(recipe.ingredients || []),
+      steps: typeof recipe.steps === 'string' ? recipe.steps : JSON.stringify(recipe.steps || []),
+    };
+    return request<any>('updateRecipe', payload);
+  },
+  adjustRecipeLikes: (id: string, delta: 1 | -1) => request<{ id: string; likes: number }>('adjustRecipeLikes', { id, delta }),
 };

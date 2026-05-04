@@ -18,6 +18,9 @@ export interface Recipe {
   ingredients: string[];
   steps: string[];
   category: Category;
+  images?: string[];
+  prepTime?: string;
+  cookTime?: string;
   imageUrl: string;
   youtubeId?: string;
   instagramUrl?: string;
@@ -47,7 +50,7 @@ export interface CollaborationRequest {
   createdAt: number;
 }
 
-export type UserRole = 'admin' | 'collaborator';
+export type UserRole = 'admin' | 'collaborator' | 'creator';
 
 export interface AppUser {
   id: string;

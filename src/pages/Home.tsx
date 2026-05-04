@@ -3,42 +3,82 @@ import { motion } from 'motion/react';
 import { Heart, ArrowRight, Play, Utensils, Star, Flame } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { storage } from '../lib/storage';
+import { appScriptApi } from '../lib/appScriptApi';
 import { Recipe, Creator } from '../types';
+
+const PAGE_SIZE = 12;
 
 const Home = () => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [creators, setCreators] = useState<Creator[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
   const [likedIds, setLikedIds] = useState<string[]>([]);
 
   const categories = ['All', 'Drinks', 'Healthy', 'Shakes', 'Fast Food', 'Desserts', 'Traditional'];
 
   useEffect(() => {
-    const loadData = () => {
+    const loadData = async () => {
       setLoading(true);
-      const data = storage.getRecipes();
-      const creatorData = storage.getCreators();
-      setRecipes(data);
-      setCreators(creatorData);
-      setLoading(false);
+      console.log('🏠 Home: Loading data...');
+      try {
+        const recipesData = await appScriptApi.listRecipesPage(1, PAGE_SIZE);
+        const creatorsData = await storage.getCreatorsAsync();
+        console.log('✅ Home: Data loaded', { recipes: recipesData, creators: creatorsData });
+        setRecipes(recipesData.items);
+        setCurrentPage(recipesData.page);
+        setHasMore(recipesData.hasMore);
+        storage.mergeRecipesCache(recipesData.items);
+        setCreators(creatorsData);
+      } catch (error) {
+        console.error('❌ Home: Failed to load data:', error);
+        // Fallback to sync methods
+        const fallbackRecipes = storage.getRecipes();
+        const fallbackCreators = storage.getCreators();
+        console.log('📦 Home: Using fallback data', { recipes: fallbackRecipes, creators: fallbackCreators });
+        setRecipes(fallbackRecipes);
+        setCreators(fallbackCreators);
+      } finally {
+        setLoading(false);
+      }
     };
     loadData();
 
     setLikedIds(storage.getLikedRecipeIds());
   }, []);
 
-  const handleLike = (id: string, e: React.MouseEvent) => {
+  const handleLike = async (id: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (likedIds.includes(id)) return;
 
+    await appScriptApi.adjustRecipeLikes(id, 1);
     storage.likeRecipe(id);
     const newLikedIds = storage.addLikedRecipe(id);
     setLikedIds(newLikedIds);
 
     // Update local state to show +1 immediately
     setRecipes(recipes.map(r => r.id === id ? { ...r, likes: r.likes + 1 } : r));
+  };
+
+  const handleLoadMore = async () => {
+    setLoadingMore(true);
+    try {
+      const nextPage = currentPage + 1;
+      const nextBatch = await appScriptApi.listRecipesPage(nextPage, PAGE_SIZE);
+      setRecipes((current) => {
+        const combined = [...current, ...nextBatch.items];
+        storage.mergeRecipesCache(combined);
+        return combined;
+      });
+      setCurrentPage(nextPage);
+      setHasMore(nextBatch.hasMore);
+    } finally {
+      setLoadingMore(false);
+    }
   };
 
   const filteredRecipes = recipes.filter((recipe) => activeCategory === 'All' || recipe.category === activeCategory);
@@ -159,6 +199,7 @@ const Home = () => {
           {loading ? (
             <div className="text-center py-20 text-gray-400 font-medium">Cooking up your list...</div>
           ) : (
+            <>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 md:gap-x-8 gap-y-8 md:gap-y-12">
               {filteredRecipes.map((recipe) => (
                 <Link key={recipe.id} to={`/cook/${recipe.slug}`} className="block group">
@@ -180,7 +221,10 @@ const Home = () => {
                     </div>
                   </div>
                   <h3 className="text-xs md:text-xl font-bold text-gray-800 mb-0.5 md:mb-2 line-clamp-1 md:line-clamp-2 md:group-hover:text-primary transition-colors">{recipe.title}</h3>
-                  <p className="text-[10px] md:text-sm text-gray-400 font-bold tracking-tight">by cookwithkaju</p>
+                  <p className="text-[10px] md:text-sm text-gray-400 font-bold tracking-tight">by {(() => {
+                    const c = creators.find(cr => String(cr.id) === String(recipe.creatorId));
+                    return c ? c.name : 'cookwithkaju';
+                  })()}</p>
 
                   <div className="hidden md:flex items-center gap-1.5 mt-3 text-xs font-bold text-muted">
                     <Star size={14} className="text-yellow-400 fill-yellow-400" />
@@ -190,6 +234,19 @@ const Home = () => {
                 </Link>
               ))}
             </div>
+            {hasMore && activeCategory === 'All' && (
+              <div className="mt-10 flex justify-center">
+                <button
+                  type="button"
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                  className="rounded-full bg-[#E93C70] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#E93C70]/25 disabled:opacity-60"
+                >
+                  {loadingMore ? 'Loading more...' : 'Load more recipes'}
+                </button>
+              </div>
+            )}
+            </>
           )}
         </div>
       </section>
@@ -219,11 +276,11 @@ const Home = () => {
       )} 
            <section className="px-4 sm:px-6 py-12 sm:py-16 md:py-20 bg-brand-bg relative">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-gradient-to-r from-[#D32F52] to-[#D32F52] rounded-2xl sm:rounded-3xl md:rounded-[3rem] py-12 sm:py-16 md:py-20 px-4 sm:px-8 md:px-16 relative overflow-hidden md:overflow-visible">
+          <div className="bg-linear-to-r from-[#D32F52] to-[#D32F52] rounded-2xl sm:rounded-3xl md:rounded-[3rem] py-12 sm:py-16 md:py-20 px-4 sm:px-8 md:px-16 relative overflow-hidden md:overflow-visible">
             
             {/* Mobile image on top */}
             <div className="block md:hidden mb-8">
-              <div className="mx-auto w-[320px] h-[380px] rounded-[2rem] overflow-hidden shadow-2xl border-[10px] border-white">
+              <div className="mx-auto w-[320px] h-95 rounded-4xl overflow-hidden shadow-2xl border-10 border-white">
                 <img 
                   src="https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=500&h=600&fit=crop"
                   alt="Food Recipe"
@@ -249,7 +306,7 @@ const Home = () => {
 
             {/* Right Side - Image with Tilt - Hidden on mobile, visible on md and above */}
             <div className="hidden md:block absolute left-1/2 md:left-auto md:right-0 top-full md:top-4/5 -translate-y-1/2 h-96 w-96">
-              <div className="w-80 h-96 rounded-[2.5rem] overflow-hidden shadow-2xl border-[10px] border-white transform -rotate-12">
+              <div className="w-80 h-96 rounded-[2.5rem] overflow-hidden shadow-2xl border-10 border-white transform -rotate-12">
                 <img 
                   src="https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=500&h=600&fit=crop"
                   alt="Food Recipe"
